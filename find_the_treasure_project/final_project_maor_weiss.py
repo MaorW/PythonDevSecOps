@@ -22,6 +22,8 @@ Step2:
 
 # Global env
 steps_to_win = 0
+position = 0
+lenght_of_characters = 0
 
 
 def create_new_game_file():
@@ -38,10 +40,24 @@ def create_new_game_file():
     game_file.close()
 
 
+def get_position(num_of_steps, lenght_of_characters):
+    if 0 < num_of_steps < lenght_of_characters:
+        return num_of_steps
+
+    if num_of_steps > lenght_of_characters:
+        return num_of_steps - lenght_of_characters
+
+    if num_of_steps < 0:
+        return num_of_steps + lenght_of_characters
+
+    if num_of_steps == 0:
+        return 1  # The first position
+
 
 # The challenge
 # If the player guessed under ten guesses, record the name and the score to a CSV file table
 def etgar(steps_to_win):
+    # Todo - Etgar
     pass
 
 
@@ -51,25 +67,39 @@ create_new_game_file()
 
 # Step2
 with open("find_the_treasure_file.txt", 'r') as game_file:
-    current_chr = (0, 0)
-    chr = ''
-
     while True:
         direction = input("Where do you want to move? [1- forward 2-backwards] ")
-        num_of_steps = int(input("How many characters? "))
 
-        if direction == '1':
-            # TODO - Forward steps
-            chr = get_forward_chr(current_chr, num_of_steps)
-            steps_to_win += 1
-        elif direction == '2':
-            # TODO - Backwards steps
-            chr = get_backward_chr(current_chr, num_of_steps)
-            steps_to_win += 1
-        else:
+        if not direction in '12':
+            print("again...")
             continue  # If the user didn't use '1' or '2', ask an input again...
 
-        print(f'You hit the character “{chr}” ')
+        try:  # For characters which are not numbers
+            num_of_steps = int(input("How many characters? "))
+        except ValueError:
+            print("again...")
+            continue
+
+        # For efficiency, if the length is not equal to zero, the variable has been calculated
+        if lenght_of_characters == 0:
+            data = game_file.read()
+            lenght_of_characters = len(data)
+
+        if not num_of_steps >= 0:
+            print("Pls Write a positive number for the characters' steps")
+            continue
+
+        if direction == '1':
+            position = get_position(num_of_steps + position, lenght_of_characters)
+
+        else:  # direction == '2'
+            position = get_position((num_of_steps * -1) + position, lenght_of_characters)
+
+        steps_to_win += 1
+        game_file.seek(position)
+        chr = game_file.readline(1)
+
+        print(f'You hit the character “{chr}”. ')
         if chr in 'TREASURE':
             break
         else:
