@@ -1,5 +1,6 @@
 from random import randint
 from pathlib import Path
+import csv
 
 """
 ### The "find the treasure" game ###
@@ -57,7 +58,11 @@ def get_position(num_of_steps, lenght_of_characters):
 # The challenge
 # If the player guessed under ten guesses, record the name and the score to a CSV file table
 def etgar(steps_to_win):
-    # Todo - Etgar
+    print()  # For space
+    player_name = input('Congrads! You\'ve guessed won the game! What is your name?  ')
+    with open('employee_file.csv', 'a') as players_file:
+        write_payer = csv.writer(players_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        write_payer.writerow([player_name, f'scores: {steps_to_win}'])
     pass
 
 
