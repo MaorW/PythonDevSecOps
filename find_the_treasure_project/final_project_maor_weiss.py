@@ -5,43 +5,39 @@ import csv
 """
 ### The "find the treasure" game ###
 
-Instructions for the codder:
+Code instructions:
 Step1:
-1. Create new file or overwrite an existing file
-2. The program will create a sequence of [1-20] random numbers between 0 to 9 by an ascending order
+1. Create a new file or overwrite an existing file
+2. The program will create a sequence of [1-20] random numbers between 0 and 9 in ascending order
 3. After the last digit (The digit 9), Print the word 'TREASURE'
-4. Then, The program will create sequence of [1-20] random numbers between 0 to 9 by an descending order
+4. Then, The program will create a sequence of [1-20] random numbers between 0 and 9 in descending order order
 
 Step2:
 1. Open that file with ReadOnly permissions and take the cursor to the first character of the file
 2. Let the user decide what direction to go  [1- forward 2-backward]
-3. Then, the user must decide how many steps to move.
+3. Then, the user must decide how many steps to move
 4. If the user hits one of the characters 'TREASURE',  print to the user how many times it took to get there
-    If not, send a msg to the user that the game continues until the cursor hits one of the 'TREASURE' characters.
+    If not, send a msg to the user that the game continues until the cursor hits one of the 'TREASURE' characters
 
 """
 
-# Global env
-steps_to_win = 0
-position = 0
-length_of_characters = 0
-
 
 def create_new_game_files():
-    # Game file
-    game_file = open("find_the_treasure_file.txt", 'w')
-    for chr in range(10):
+    # Create a sequence of [1-20] random numbers between 0 and 9 in ascending order
+    the_game_file = open("find_the_treasure_file.txt", 'w')
+    for new_chr in range(10):
         for i in range(randint(1, 20)):
-            game_file.write(str(chr))
+            the_game_file.write(str(new_chr))
 
-    game_file.write('TREASURE')
+    the_game_file.write('TREASURE')
 
-    for chr in range(9, 0, -1):
+    # Create a sequence of [1-20] random numbers between 0 and 9 in descending order
+    for new_chr in range(9, 0, -1):
         for i in range(randint(1, 20)):
-            game_file.write(str(chr))
-    game_file.close()
+            the_game_file.write(str(new_chr))
+    the_game_file.close()
 
-    # Score csv file - If the file does not exist
+    # Score csv file - If the file does not exist - Create it
     if not exists('score_file.csv'):
         score_file = open('score_file.csv', 'w', newline='')
         writer = csv.writer(score_file)
@@ -49,28 +45,31 @@ def create_new_game_files():
         score_file.close()
 
 
-def get_position(num_of_steps, length_of_characters):
-    if 0 < num_of_steps < length_of_characters:
-        return num_of_steps
+def get_position(number_of_steps, characters_length):
+    if 0 < number_of_steps < characters_length:
+        return number_of_steps
 
-    if num_of_steps > length_of_characters:
-        return num_of_steps - length_of_characters
+    if number_of_steps > characters_length:
+        return number_of_steps - characters_length
 
-    if num_of_steps < 0:
-        return num_of_steps + length_of_characters
+    if number_of_steps < 0:
+        return number_of_steps + characters_length
 
-    if num_of_steps == 0:
-        return 1  # The first position
+    if number_of_steps == 0:
+        # The first position
+        return 1
 
 
 # The challenge
-# If the player guessed under ten guesses, record the name and the score to a CSV file table
-def challenge(steps_to_win, num_of_scores):
-    print()  # For space
-    player_name = input('Congrads! You\'ve guessed won the game! What is your name?  ')
+# If the player guessed under ten guesses, record the name and the score to a CSV file
+def challenge(num_of_steps_to_win, total_score_rows):
+    # For space
+    print()
+    player_name = input('Congratulation! You\'ve won the game! \nWhat is your name?  ')
+    # Append the new player_name and score values
     with open('score_file.csv', 'a', newline='') as players_file:
         write_payer = csv.writer(players_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        write_payer.writerow([player_name, steps_to_win])
+        write_payer.writerow([player_name, num_of_steps_to_win])
 
     # Creating new_scores_table by list
     score_file = open('score_file.csv', 'r+')
@@ -80,13 +79,12 @@ def challenge(steps_to_win, num_of_scores):
     score_list.sort(key=lambda x: x[1])
 
     # If there are more than 10 scores - Delete the last row, which is the lower score
-    if num_of_scores > 10:
+    if total_score_rows > 10:
         score_list.pop()
     score_file.close()
 
-    new_scores_table = open('score_file.csv', 'w+', newline='')
-
-    # writing the new_scores_table into the score file
+    # write the new_scores_table into the score file
+    new_scores_table = open('score_file.csv', 'w', newline='')
     with new_scores_table:
         score = csv.writer(new_scores_table)
         score.writerows(score_list)
@@ -96,15 +94,23 @@ def challenge(steps_to_win, num_of_scores):
 def get_score_file_parameters():
     score_file = open('score_file.csv')
     score_list = list(csv.reader(score_file))
-    num_of_scores = len(score_list) - 1  # First row doesn't count as a score
-    if num_of_scores > 0:
-        lower_score = int(score_list[-1][1])
+    # First row doesn't count as a score.
+    number_of_scores = len(score_list) - 1
+    if number_of_scores > 0:
+        the_lower_score = score_list[-1]
+        highest_steps = int(the_lower_score[1])
     else:
-        lower_score = 0  # If the CSV is empty
+        # If the CSV is empty
+        highest_steps = 0
     score_file.close()
 
-    return num_of_scores, lower_score
+    return number_of_scores, highest_steps
 
+
+# Global env
+steps_to_win = 0
+position = 0
+length_of_characters = 0
 
 print('Welcome to the "find the treasure" game ')
 # Step1
@@ -116,13 +122,15 @@ with open("find_the_treasure_file.txt", 'r') as game_file:
     while True:
         direction = input("Where do you want to move? [1- forward 2-backwards] ")
 
-        if not direction in '12':
+        # If the user didn't use '1' or '2', ask an input again...
+        if direction not in '12':
             print("again...")
-            continue  # If the user didn't use '1' or '2', ask an input again...
+            continue
 
-        try:  # For characters which are not numbers
+        try:
             num_of_steps = int(input("How many characters? "))
         except ValueError:
+            # For characters which are not numbers
             print("again...")
             continue
 
@@ -143,10 +151,10 @@ with open("find_the_treasure_file.txt", 'r') as game_file:
 
         steps_to_win += 1
         game_file.seek(position)
-        chr = game_file.readline(1)
+        current_chr = game_file.readline(1)
 
-        print(f'You hit the character “{chr}”. ')
-        if chr in 'TREASURE':
+        print(f'You hit the character “{current_chr}”. ')
+        if current_chr in 'TREASURE':
             break
         else:
             print('… again … until hit one of the “TREASURE” letters…')
